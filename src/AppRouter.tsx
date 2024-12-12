@@ -17,12 +17,16 @@ import CreateForm from "./pages/institutions/CreateForm";
 import PublicInstitutionForms from "./pages/institutions/PublicInstitutionForms";
 import FormApplication from "./pages/institutions/FormApplication";
 import MyInstitutions from "./pages/admin/MyInstitutions";
+import NavBar from "./components/Navbar";
 
 
 
 export default function AppRouter() {
   return (
     <Router>
+       <header>
+            <NavBar />
+          </header>
       <Routes>
         {/* Existing routes */}
         <Route path="/" element={<Home />} />
