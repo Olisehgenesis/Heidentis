@@ -170,17 +170,19 @@ export const useInstitutions = () => {
     }
   };
 
-  const getInstitutionById = async (did: string): Promise<Institution | null> => {
+  const getInstitutionById = async (identifier: string): Promise<Institution | null> => {
     try {
       setLoading(true);
       setError(null);
+      
+      // Get the institution topic ID from env
       const topicId = import.meta.env.VITE_INSTITUTION_TOPIC_ID;
+      console.log('Institution Topic ID:', topicId); // Debug log
       
       if (!topicId) {
         throw new Error('Institution topic ID not configured');
       }
 
-      // Get messages and find the institution registration message for this DID
       const response = await fetch(
         `${mirrorNodeClient.url}/api/v1/topics/${topicId}/messages?limit=100&order=desc`
       );
@@ -191,25 +193,22 @@ export const useInstitutions = () => {
 
       const data = await response.json();
       let institution: Institution | null = null;
-      let latestTimestamp = 0;
 
-      // Process messages to find the latest message for this DID
+      // Look for institution by either DID or account ID
       for (const msg of data.messages) {
         try {
-          const decoded = decodeBase64(msg.message);
-          if (!decoded) continue;
-          
+          const decoded = atob(msg.message);
           const parsed = JSON.parse(decoded);
           
           if (parsed.type === 'INSTITUTION_REGISTRATION' && 
-              parsed.data.did === did &&
-              parseInt(msg.consensus_timestamp) > latestTimestamp) {
+             (parsed.data.did === identifier || parsed.data.creatorId === identifier)) {
             institution = {
               ...parsed.data,
               messageId: msg.sequence_number,
-              timestamp: new Date(parseInt(msg.consensus_timestamp) * 1000).toISOString()
+              timestamp: new Date(parseInt(msg.consensus_timestamp) * 1000).toISOString(),
+              topicId: parsed.data.topicId || import.meta.env.VITE_APP_TOPIC_ID // Fallback to app topic
             };
-            latestTimestamp = parseInt(msg.consensus_timestamp);
+            break;
           }
         } catch (err) {
           console.error('Error parsing message:', err);
@@ -217,69 +216,21 @@ export const useInstitutions = () => {
         }
       }
 
-      // Handle pagination only if institution hasn't been found
-      let nextLink = data.links?.next;
-      while (!institution && nextLink) {
-        const nextResponse = await fetch(`${mirrorNodeClient.url}${nextLink}`);
-        if (!nextResponse.ok) {
-          throw new Error(`HTTP error! status: ${nextResponse.status}`);
-        }
-        const nextData = await nextResponse.json();
-        
-        for (const msg of nextData.messages) {
-          try {
-            const decoded = decodeBase64(msg.message);
-            if (!decoded) continue;
-            
-            const parsed = JSON.parse(decoded);
-            
-            if (parsed.type === 'INSTITUTION_REGISTRATION' && 
-                parsed.data.did === did &&
-                parseInt(msg.consensus_timestamp) > latestTimestamp) {
-              institution = {
-                ...parsed.data,
-                messageId: msg.sequence_number,
-                timestamp: new Date(parseInt(msg.consensus_timestamp) * 1000).toISOString()
-              };
-              latestTimestamp = parseInt(msg.consensus_timestamp);
-            }
-          } catch (err) {
-            console.error('Error parsing message:', err);
-            continue;
-          }
-        }
-        nextLink = nextData.links?.next;
+      if (!institution) {
+        // If no institution found, create a default one for the account
+        institution = {
+          did: identifier,
+          name: `Institution ${identifier}`,
+          type: 'Default',
+          status: 'active',
+          creatorId: identifier,
+          registeredAt: new Date().toISOString(),
+          topicId: import.meta.env.VITE_APP_TOPIC_ID,
+          description: 'Default institution'
+        };
       }
 
-      // Check for updates to the institution (status changes, etc.)
-      const updatesResponse = await fetch(
-        `${mirrorNodeClient.url}/api/v1/topics/${institution?.topicId}/messages?limit=100&order=desc`
-      );
-
-      if (updatesResponse.ok) {
-        const updatesData = await updatesResponse.json();
-        for (const msg of updatesData.messages) {
-          try {
-            const decoded = decodeBase64(msg.message);
-            if (!decoded) continue;
-            
-            const parsed = JSON.parse(decoded);
-            if (parsed.type === 'INSTITUTION_UPDATE' && 
-                parsed.data.did === did &&
-                parseInt(msg.consensus_timestamp) > latestTimestamp) {
-              institution = {
-                ...institution,
-                ...parsed.data.updates,
-                timestamp: new Date(parseInt(msg.consensus_timestamp) * 1000).toISOString()
-              };
-            }
-          } catch (err) {
-            console.error('Error parsing update message:', err);
-            continue;
-          }
-        }
-      }
-
+      console.log('Found/Created Institution:', institution); // Debug log
       return institution;
 
     } catch (err) {
