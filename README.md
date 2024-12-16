@@ -1,50 +1,96 @@
-# React + TypeScript + Vite
+# HeiDenti
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A decentralized digital identity management platform built on Hedera, designed to streamline identity verification and document management for global citizens.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+HeiDenti transforms the complex process of identity management and verification into a seamless, secure experience using Hedera's distributed ledger technology. The platform enables users to maintain control of their digital identity while providing verifiers with trusted, immutable verification channels.
 
-## Expanding the ESLint configuration
+### Key Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Decentralized Identity Wallet**
+  - Secure storage of verifiable credentials
+  - Self-sovereign identity management
+  - Document submission and tracking
+  - Real-time verification status
 
-- Configure the top-level `parserOptions` property like this:
+- **Verification Portal**
+  - Multi-party verification workflow
+  - Automated credential validation
+  - Compliance tracking dashboard
+  - Audit trail management
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- **Smart Document Management**
+  - Hedera Topic-based document indexing
+  - Encrypted document storage
+  - Automatic expiration tracking
+  - Cross-reference verification
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Benefits
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+- **For Users**
+  - Single source of truth for identity documents
+  - Reduced paperwork and manual processes
+  - Real-time status tracking
+  - Enhanced privacy and security
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- **For Verifiers**
+  - Streamlined verification workflows
+  - Reduced fraud risk
+  - Automated compliance checks
+  - Immutable audit trails
+
+## Technical Architecture
+
+### Core Components
+
+1. **Hedera Infrastructure**
+   - Topics for document metadata storage
+   - Tokens for access control
+   - Smart contracts for verification logic
+   - HCS for secure messaging
+
+2. **Backend Services**
+   - Identity management service
+   - Verification orchestration
+   - Document processing engine
+   - Analytics and reporting
+
+3. **Frontend Applications**
+   - User wallet interface
+   - Verifier dashboard
+   - Admin control panel
+
+### Security Features
+
+- End-to-end encryption
+- Zero-knowledge proofs
+- Multi-factor authentication
+- Granular access control
+
+## Use Cases
+
+1. **Immigration & Visa Processing**
+   - Document submission
+   - Status tracking
+   - Multi-agency verification
+
+2. **Banking & Financial Services**
+   - KYC/AML compliance
+   - Account opening
+   - Credit verification
+
+3. **Employment Verification**
+   - Background checks
+   - Credential validation
+   - Work authorization
+
+## Getting Started
+
+See [TECHME.md](./TECHME.md) for detailed setup and deployment instructions.
+
+## License
+
+MIT
+
+---
